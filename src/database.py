@@ -1,5 +1,4 @@
 import sqlite3
-from sanitize import sanitize, maybe, mapping
 import time
 
 import hashlib
@@ -15,7 +14,7 @@ class Database:
     def register_comic(self, comic_id, comic_url, data):
         # Download and store images
         file_type = data["img"].split(".")[-1]
-        target_file = hashlib.sha256(comic_url.encode(  )).hexdigest() + "." + file_type
+        target_file = "img/" + hashlib.sha256(comic_url.encode(  )).hexdigest() + "." + file_type
         with urllib.request.urlopen("https:"+data["img"]) as adress:
             with open(target_file , "wb") as f:
                 f.write(adress.read())
@@ -64,8 +63,8 @@ class Database:
         for key, value in data.items():
             query = """insert into data (page, key, value)
                             values (?, ?, ?)"""
-            print(query,(page_id, key, value))
-            self.c.execute(query)
+            self.c.execute(query, (page_id, key, value))
+        self.conn.commit()
 
     def unread(self, comic_id, timestamp):
         query = """select id, title, link, timestamp from pages
