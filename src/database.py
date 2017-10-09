@@ -30,9 +30,11 @@ class Database:
         if user_id is None:
             comics = self.c.execute("select * from comics")
         else:
-            query = f"""select following.comic, comics.name, comics.link from following
-                            join comics on following.comic = comics.id
-                            where following.user={user_id}"""
+            query = f \
+            """select following.comic, comics.name, comics.link from following
+               join comics on following.comic = comics.id
+               where following.user={user_id}"""
+               
             comics = self.c.execute(query)
         for comic in comics:
             print(comic)
@@ -52,15 +54,18 @@ class Database:
 
     @sanitize(None, int, int)
     def subscribe(self, user_id, comic_id):
-        query = f"insert into following (user, comic) values ('{user_id}', '{comic_id}')"
+        query = f"""insert into following (user, comic) 
+                    values ('{user_id}', '{comic_id}')"""
         self.c.execute(query)
         self.conn.commit()
 
     @sanitize(None, int, str, str, mapping(str, str))
     def new_page(self, comic_id, title, link, **data):
         timestamp = int(time.time())
-        query = f"""insert into pages (comic, title, link, timestamp)
-                        values ('{comic_id}', '{title}', '{link}', '{timestamp}')"""
+        query = f \
+        """insert into pages (comic, title, link, timestamp)
+           values ('{comic_id}', '{title}', '{link}', '{timestamp}')"""
+           
         page_id = self.c.execute(query).lastrowid
         for key, value in data.items():
             query = f"""insert into data (page, key, value)
