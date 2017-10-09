@@ -1,6 +1,9 @@
 
 from database import Database
+import scrapper
 
-db = Database()
+database = Database()
 
-db.comics()
+xkcd = scrapper.XkcdParser(1, "http://xkcd.com/1500")
+
+xkcd.run(database)

@@ -20,32 +20,30 @@ class PageParser():
     def __init__(self, comic_id, start_url):
         self.comic_id = comic_id
         self.current_url = start_url
-        
-    def run(self):
+
+    def run(self, database):
         for i in range(10):
-            next_url = self.extract_one()
+            next_url = self.extract_one(database)
             if self.current_url == next_url:
                 break
             self.current_url= next_url
-        
-    def extract_one(self):
+
+    def extract_one(self, database):
         page = requests.get(self.current_url)
         tree = html.fromstring(page.content)
-        
+
         data = self.extract_information(tree)
         database.register_comic(self.comic_id, self.current_url, data)
-        
+
         return urllib.parse.urljoin(self.current_url, data["href_next"])
-        
+
 class XkcdParser(PageParser):
     def extract_information(self, tree):
-        
+
         comic = tree.xpath('//div[@id="comic"]/img')[0]
-        
+
         return { "title"     : comic.attrib["alt"]
                , "alt"       : comic.attrib["title"]
                , "img"       : comic.attrib["src"]
                , "href_next" : tree.xpath('//a[@rel="next"]')[0].attrib["href"]
                }
-
-        

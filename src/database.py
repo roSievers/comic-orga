@@ -2,10 +2,28 @@ import sqlite3
 from sanitize import sanitize, maybe, mapping
 import time
 
+import hashlib
+import urllib.request
+
 class Database:
     def __init__(self, filename="database.db"):
         self.conn = sqlite3.connect(filename)
         self.c = self.conn.cursor()
+
+    """Takes all data about a website and stores it. Will also download images
+    found in data["img"] which is either a URL or a list of URLs."""
+    def register_comic(self, comic_id, comic_url, data):
+        # Download and store images
+        file_type = data["img"].split(".")[-1]
+        target_file = hashlib.sha256(comic_url.encode(  )).hexdigest() + "." + file_type
+        with urllib.request.urlopen("https:"+data["img"]) as adress:
+            with open(target_file , "wb") as f:
+                f.write(adress.read())
+
+        data["img"] = target_file
+        title = data["title"]
+        del data["title"]
+        self.new_page(comic_id, title, comic_url, **data)
 
     @sanitize(None, maybe(int))
     def comics(self, user_id=None):
